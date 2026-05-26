@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cancha Ya — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #1A7A4A;
+  --green-light: #E8F5EE;
+  --green-mid: #2EA865;
+  --green-dark: #0F4D2E;
+  --amber: #F5A623;
+  --amber-light: #FEF3DC;
+  --red: #E03535;
+  --bg: #F2F4F0;
+  --card: #FFFFFF;
+  --text: #111B14;
+  --text-2: #4A5C50;
+  --text-3: #8A9E90;
+  --border: #DDE8DF;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #1A1A1A;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.phone-wrap {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  background: var(--bg);
+  border-radius: 44px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6), inset 0 0 0 1.5px rgba(255,255,255,0.08);
+}
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  z-index: 100;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+.status-bar .time { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+.status-icons { display: flex; gap: 5px; align-items: center; }
+.status-icons svg { width: 16px; height: 16px; fill: var(--text); }
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  padding-top: 50px;
+  padding-bottom: 80px;
+}
+.screen.active { display: flex; }
+.screen::-webkit-scrollbar { display: none; }
+.bottom-nav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 80px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: 14px;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding-top: 10px;
+}
+.nav-item svg { width: 22px; height: 22px; stroke: var(--text-3); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: all 0.2s; }
+.nav-item span { font-size: 10px; color: var(--text-3); font-weight: 500; transition: all 0.2s; }
+.nav-item.active svg { stroke: var(--green); }
+.nav-item.active span { color: var(--green); font-weight: 600; }
+
+/* HOME */
+#home { background: var(--bg); }
+.home-header {
+  background: var(--green-dark);
+  padding: 16px 24px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.home-header::before { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.04); top: -60px; right: -40px; }
+.home-header::after { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.03); bottom: -30px; left: 60px; }
+.greeting { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 300; margin-bottom: 2px; }
+.user-name { font-family: 'Syne', sans-serif; font-size: 22px; color: #fff; font-weight: 700; margin-bottom: 16px; }
+.location-row { display: flex; align-items: center; gap: 6px; }
+.location-pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 5px; }
+.location-pill svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 2; }
+.search-bar { margin: -18px 20px 0; position: relative; z-index: 10; }
+.search-bar input { width: 100%; padding: 14px 18px 14px 44px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.search-bar svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+.section-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 12px; }
+.section-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); }
+.see-all { font-size: 13px; color: var(--green); font-weight: 500; cursor: pointer; }
+.sport-pills { display: flex; gap: 8px; padding: 0 24px 16px; overflow-x: auto; }
+.sport-pills::-webkit-scrollbar { display: none; }
+.sport-pill { flex-shrink: 0; padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 1.5px solid var(--border); color: var(--text-2); background: var(--card); }
+.sport-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
+.canchas-scroll { display: flex; gap: 14px; padding: 0 24px 4px; overflow-x: auto; }
+.canchas-scroll::-webkit-scrollbar { display: none; }
+.cancha-card { flex-shrink: 0; width: 220px; background: var(--card); border-radius: var(--radius); overflow: hidden; cursor: pointer; border: 1px solid var(--border); transition: transform 0.2s; }
+.cancha-card:active { transform: scale(0.97); }
+.cancha-img { width: 100%; height: 120px; position: relative; overflow: hidden; }
+.cancha-img-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.bg-green { background: linear-gradient(135deg, #1A7A4A 0%, #2EA865 100%); }
+.bg-blue { background: linear-gradient(135deg, #1A4A7A 0%, #2E65A8 100%); }
+.bg-amber { background: linear-gradient(135deg, #7A4A1A 0%, #A8652E 100%); }
+.cancha-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 10px; backdrop-filter: blur(4px); }
+.cancha-badge.disponible { background: rgba(30,160,80,0.85); }
+.cancha-badge.ocupado { background: rgba(220,50,50,0.85); }
+.cancha-info { padding: 12px 14px; }
+.cancha-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.cancha-meta { font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+.cancha-meta svg { width: 12px; height: 12px; stroke: var(--text-3); fill: none; stroke-width: 2; }
+.cancha-footer { display: flex; justify-content: space-between; align-items: center; }
+.cancha-price { font-size: 15px; font-weight: 600; color: var(--green); }
+.cancha-price span { font-size: 11px; color: var(--text-3); font-weight: 400; }
+.stars { font-size: 11px; color: var(--amber); }
+.torneo-card { margin: 0 24px 14px; background: var(--card); border-radius: var(--radius); padding: 16px; cursor: pointer; border: 1px solid var(--border); display: flex; gap: 14px; align-items: center; transition: transform 0.2s; }
+.torneo-card:active { transform: scale(0.98); }
+.torneo-icon { width: 52px; height: 52px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+.torneo-icon.fut { background: var(--green-light); }
+.torneo-icon.vol { background: #EEF0FE; }
+.torneo-info { flex: 1; }
+.torneo-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.torneo-sub { font-size: 12px; color: var(--text-3); }
+.torneo-right { text-align: right; }
+.torneo-price { font-size: 15px; font-weight: 600; color: var(--green); }
+.torneo-spots { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* CANCHAS LIST */
+#canchas { background: var(--bg); }
+.screen-header { padding: 16px 24px 14px; background: var(--card); border-bottom: 1px solid var(--border); }
+.screen-header-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); }
+.screen-header-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+.filter-row { display: flex; gap: 8px; padding: 14px 24px; overflow-x: auto; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-btn { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid var(--border); background: var(--card); color: var(--text-2); cursor: pointer; transition: all 0.18s; }
+.filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+.cancha-list-item { margin: 0 20px 12px; background: var(--card); border-radius: var(--radius); padding: 14px; display: flex; gap: 14px; cursor: pointer; border: 1px solid var(--border); transition: transform 0.2s; }
+.cancha-list-item:active { transform: scale(0.98); }
+.cancha-thumb { width: 72px; height: 72px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+.cancha-list-info { flex: 1; }
+.cancha-list-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.cancha-list-meta { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+.cancha-list-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag-pill { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: var(--green-light); color: var(--green-dark); }
+.tag-pill.voley { background: #EEF0FE; color: #3340B8; }
+.tag-pill.full { background: var(--amber-light); color: #7A4F00; }
+.cancha-list-right { text-align: right; display: flex; flex-direction: column; justify-content: space-between; }
+.cancha-list-price { font-size: 16px; font-weight: 600; color: var(--green); }
+.cancha-list-price small { font-size: 11px; color: var(--text-3); font-weight: 400; }
+.avail-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.avail-dot.on { background: var(--green-mid); }
+.avail-dot.off { background: var(--red); }
+
+/* RESERVA */
+#reserva { background: var(--bg); }
+.reserva-hero { background: var(--green-dark); padding: 16px 24px 24px; color: #fff; }
+.back-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7); cursor: pointer; margin-bottom: 14px; }
+.back-btn svg { width: 16px; height: 16px; stroke: rgba(255,255,255,0.7); fill: none; stroke-width: 2.5; }
+.reserva-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.reserva-sub { font-size: 13px; color: rgba(255,255,255,0.65); }
+.reserva-section { margin: 16px 20px 0; background: var(--card); border-radius: var(--radius); padding: 18px; border: 1px solid var(--border); }
+.reserva-section-title { font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.date-pills { display: flex; gap: 8px; overflow-x: auto; }
+.date-pills::-webkit-scrollbar { display: none; }
+.date-pill { flex-shrink: 0; padding: 10px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); cursor: pointer; text-align: center; transition: all 0.2s; min-width: 56px; }
+.date-pill .day { font-size: 10px; color: var(--text-3); font-weight: 500; text-transform: uppercase; }
+.date-pill .num { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); margin-top: 2px; }
+.date-pill.active { background: var(--green); border-color: var(--green); }
+.date-pill.active .day, .date-pill.active .num { color: #fff; }
+.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+.time-slot { padding: 10px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); text-align: center; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text); transition: all 0.2s; }
+.time-slot.active { background: var(--green); color: #fff; border-color: var(--green); }
+.time-slot.taken { background: var(--bg); color: var(--text-3); cursor: not-allowed; border-color: var(--border); text-decoration: line-through; }
+.sport-select { display: flex; gap: 10px; }
+.sport-btn { flex: 1; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); text-align: center; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text); transition: all 0.2s; }
+.sport-btn .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+.sport-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+.precio-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-2); }
+.precio-row:last-child { border-bottom: none; font-weight: 600; color: var(--text); font-size: 15px; }
+.precio-row span:last-child { color: var(--green); }
+.btn-primary { margin: 16px 20px; background: var(--green); color: #fff; border: none; border-radius: var(--radius); padding: 16px; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; width: calc(100% - 40px); cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; }
+.btn-primary:active { transform: scale(0.98); background: var(--green-dark); }
+
+/* TORNEOS */
+#torneos { background: var(--bg); }
+.torneo-banner { margin: 14px 20px; background: var(--green-dark); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.torneo-banner::before { content: '⚽'; position: absolute; font-size: 80px; right: -10px; bottom: -14px; opacity: 0.15; }
+.torneo-banner-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.torneo-banner-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.torneo-banner-sub { font-size: 13px; color: rgba(255,255,255,0.65); margin-bottom: 14px; }
+.btn-outline-white { display: inline-block; padding: 8px 18px; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 20px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; transition: all 0.2s; }
+.btn-outline-white:active { background: rgba(255,255,255,0.1); }
+.torneo-full-card { margin: 0 20px 14px; background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
+.torneo-full-card:active { transform: scale(0.98); }
+.torneo-full-header { padding: 14px 16px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); }
+.torneo-full-icon { width: 44px; height: 44px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.torneo-full-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+.torneo-full-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.torneo-level { margin-left: auto; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.level-basic { background: var(--green-light); color: var(--green-dark); }
+.level-mid { background: var(--amber-light); color: #7A4F00; }
+.level-pro { background: #FEE2E2; color: #7F1D1D; }
+.torneo-full-body { padding: 14px 16px; }
+.torneo-stats { display: flex; gap: 0; }
+.torneo-stat { flex: 1; text-align: center; padding: 8px; border-right: 1px solid var(--border); }
+.torneo-stat:last-child { border-right: none; }
+.torneo-stat-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); }
+.torneo-stat-label { font-size: 10px; color: var(--text-3); font-weight: 500; text-transform: uppercase; margin-top: 2px; }
+.inscribir-btn { margin: 10px 0 0; width: 100%; background: var(--green-light); color: var(--green-dark); border: none; border-radius: var(--radius-sm); padding: 11px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.inscribir-btn:active { background: var(--green); color: #fff; }
+
+/* PERFIL */
+#perfil { background: var(--bg); }
+.perfil-header { background: var(--green-dark); padding: 20px 24px 30px; display: flex; flex-direction: column; align-items: center; position: relative; }
+.avatar-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--green-mid); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 10px; border: 3px solid rgba(255,255,255,0.3); }
+.perfil-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.perfil-sub { font-size: 13px; color: rgba(255,255,255,0.6); }
+.stats-row { display: flex; margin: -20px 20px 0; background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); position: relative; z-index: 5; }
+.stat-item { flex: 1; padding: 16px 10px; text-align: center; border-right: 1px solid var(--border); }
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); }
+.stat-lbl { font-size: 10px; color: var(--text-3); font-weight: 500; text-transform: uppercase; margin-top: 2px; }
+.menu-section { margin: 16px 20px 0; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+.menu-item { display: flex; align-items: center; gap: 14px; padding: 15px 18px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.menu-item:last-child { border-bottom: none; }
+.menu-item:active { background: var(--bg); }
+.menu-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.menu-icon.green { background: var(--green-light); }
+.menu-icon.amber { background: var(--amber-light); }
+.menu-icon.blue { background: #EEF0FE; }
+.menu-icon.red { background: #FEE2E2; }
+.menu-text { flex: 1; }
+.menu-label { font-size: 14px; font-weight: 500; color: var(--text); }
+.menu-sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+.menu-arrow { font-size: 16px; color: var(--text-3); }
+
+/* OWNER PANEL */
+.mode-toggle-bar { position: absolute; top: 50px; left: 0; right: 0; background: var(--green-dark); display: flex; align-items: center; justify-content: center; padding: 8px 20px; gap: 10px; z-index: 99; }
+.mode-toggle-label { font-size: 12px; color: rgba(255,255,255,0.65); }
+.toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+.toggle-switch input { display: none; }
+.toggle-track { width: 100%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 12px; transition: background 0.2s; display: block; }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+.toggle-switch input:checked ~ .toggle-track { background: var(--amber); }
+.toggle-switch input:checked ~ .toggle-thumb { transform: translateX(20px); }
+#owner { background: var(--bg); padding-top: 100px; }
+.owner-header { background: var(--green-dark); padding: 14px 24px 22px; position: absolute; top: 50px; left: 0; right: 0; z-index: 50; }
+.owner-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--amber); color: #3D2000; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.04em; text-transform: uppercase; }
+.owner-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; }
+.owner-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.owner-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 20px 0; }
+.kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.kpi-label { font-size: 11px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.kpi-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); }
+.kpi-sub { font-size: 11px; color: var(--green); margin-top: 3px; }
+.kpi-sub.neg { color: var(--red); }
+.owner-section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); padding: 16px 20px 10px; }
+.schedule-card { margin: 0 20px 14px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+.schedule-day-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.schedule-day-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.schedule-day-meta { font-size: 12px; color: var(--text-3); }
+.schedule-day-arrow { font-size: 16px; color: var(--text-3); transition: transform 0.2s; }
+.schedule-day-arrow.open { transform: rotate(90deg); }
+.schedule-slots { padding: 12px 16px; }
+.schedule-slot-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.schedule-slot-row:last-child { border-bottom: none; }
+.slot-time { font-size: 13px; font-weight: 500; color: var(--text); width: 56px; flex-shrink: 0; }
+.slot-status-pill { flex: 1; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.18s; border: none; }
+.slot-libre { background: var(--green-light); color: var(--green-dark); }
+.slot-reservado { background: #FEE2E2; color: #7F1D1D; }
+.slot-bloqueado { background: #F1F5F9; color: #64748B; }
+.slot-actions { display: flex; gap: 6px; }
+.slot-action-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+.slot-action-btn:active { background: var(--border); }
+.reserva-incoming { margin: 0 20px 10px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+.reserva-incoming-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--green-mid); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.reserva-incoming-info { flex: 1; }
+.reserva-incoming-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.reserva-incoming-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.reserva-incoming-right { text-align: right; }
+.reserva-incoming-price { font-size: 15px; font-weight: 700; color: var(--green); }
+.reserva-incoming-time { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.confirm-btn { padding: 5px 12px; background: var(--green-light); color: var(--green-dark); border: none; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+.confirm-btn:active { background: var(--green); color: #fff; }
+.precio-editor-card { margin: 0 20px 14px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; }
+.precio-editor-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.precio-editor-row:last-child { border-bottom: none; }
+.precio-editor-label { font-size: 14px; color: var(--text); }
+.precio-editor-label small { display: block; font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.precio-input-wrap { display: flex; align-items: center; gap: 6px; }
+.precio-input-wrap span { font-size: 14px; color: var(--text-3); }
+.precio-input { width: 72px; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--green-dark); background: var(--green-light); text-align: center; outline: none; }
+.precio-input:focus { border-color: var(--green); }
+.save-btn { margin: 4px 20px 10px; width: calc(100% - 40px); background: var(--green); color: #fff; border: none; border-radius: var(--radius); padding: 14px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.save-btn:active { background: var(--green-dark); transform: scale(0.98); }
+
+/* ═══ ADMIN PANEL ═══ */
+#admin { background: var(--bg); padding-top: 50px; }
+.admin-header {
+  background: #111B14;
+  padding: 16px 24px 20px;
+}
+.admin-badge { display: inline-flex; align-items: center; gap: 6px; background: #E03535; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
+.admin-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+.admin-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+.admin-tabs { display: flex; gap: 0; margin: 14px 20px; background: var(--card); border-radius: var(--radius-sm); border: 1px solid var(--border); overflow: hidden; }
+.admin-tab { flex: 1; padding: 10px 6px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all 0.2s; border-right: 1px solid var(--border); }
+.admin-tab:last-child { border-right: none; }
+.admin-tab.active { background: var(--green); color: #fff; }
+.admin-panel { display: none; }
+.admin-panel.active { display: block; }
+.admin-section-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); padding: 4px 20px 10px; }
+.admin-card { margin: 0 20px 12px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+.admin-card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.admin-card-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.admin-card-num { width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.admin-card-actions { display: flex; gap: 6px; }
+.admin-action-btn { padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text-2); transition: all 0.15s; }
+.admin-action-btn.danger { border-color: #FECACA; color: var(--red); background: #FEF2F2; }
+.admin-action-btn:active { transform: scale(0.95); }
+.admin-field-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.admin-field-row:last-child { border-bottom: none; }
+.admin-field-label { font-size: 12px; color: var(--text-3); font-weight: 500; width: 80px; flex-shrink: 0; }
+.admin-field-input { flex: 1; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; text-align: right; }
+.admin-field-input:focus { border-color: var(--green); background: var(--card); }
+.admin-field-select { flex: 1; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; text-align: right; appearance: none; cursor: pointer; }
+.admin-field-select:focus { border-color: var(--green); }
+.add-btn { margin: 0 20px 14px; width: calc(100% - 40px); background: var(--green-light); color: var(--green-dark); border: 2px dashed var(--green); border-radius: var(--radius); padding: 12px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.add-btn:active { background: var(--green); color: #fff; }
+.admin-save-all { margin: 6px 20px 16px; width: calc(100% - 40px); background: var(--green); color: #fff; border: none; border-radius: var(--radius); padding: 15px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.admin-save-all:active { background: var(--green-dark); transform: scale(0.98); }
+
+/* LOGIN ADMIN */
+.admin-login-overlay { position: absolute; inset: 0; background: #111B14; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; padding: 40px 30px; }
+.admin-login-logo { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.admin-login-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 40px; text-align: center; }
+.admin-login-input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 16px; color: #fff; outline: none; margin-bottom: 12px; letter-spacing: 0.1em; }
+.admin-login-input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0; }
+.admin-login-input:focus { border-color: var(--green-mid); }
+.admin-login-btn { width: 100%; padding: 15px; background: var(--green); color: #fff; border: none; border-radius: var(--radius); font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+.admin-login-btn:active { background: var(--green-dark); }
+.admin-login-hint { font-size: 12px; color: rgba(255,255,255,0.25); margin-top: 20px; text-align: center; }
+
+/* MODAL */
+.modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; z-index: 150; backdrop-filter: blur(2px); }
+.modal-overlay.show { display: flex; }
+.modal-sheet { width: 100%; background: var(--card); border-radius: 24px 24px 0 0; padding: 20px 24px 40px; }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
+.yape-row { display: flex; align-items: center; gap: 12px; padding: 14px; background: #6833E6; border-radius: var(--radius); margin-bottom: 10px; cursor: pointer; }
+.yape-logo { font-size: 22px; }
+.yape-text { color: #fff; font-size: 14px; font-weight: 600; }
+.plin-row { display: flex; align-items: center; gap: 12px; padding: 14px; background: #00C48C; border-radius: var(--radius); cursor: pointer; }
+.plin-text { color: #fff; font-size: 14px; font-weight: 600; }
+
+/* TOAST */
+.toast { position: absolute; bottom: 100px; left: 20px; right: 20px; background: var(--text); color: #fff; border-radius: var(--radius); padding: 14px 18px; font-size: 13px; font-weight: 500; text-align: center; opacity: 0; transform: translateY(20px); transition: all 0.3s; z-index: 200; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* SPLASH */
+#splash { position: absolute; inset: 0; background: var(--green-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; transition: opacity 0.5s; }
+.splash-logo { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
+.splash-logo .ball { font-size: 48px; }
+.splash-tagline { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; }
+.splash-dots { display: flex; gap: 6px; margin-top: 32px; }
+.splash-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); animation: pulse-dot 1.2s ease-in-out infinite; }
+.splash-dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse-dot { 0%,80%,100%{opacity:0.3;transform:scale(1)} 40%{opacity:1;transform:scale(1.3)} }
+</style>
+</head>
+<body>
+<div class="phone-wrap">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <span class="time" id="clock">9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 6s4.5-2 11-2 11 2 11 2M5 10s3-1.5 7-1.5 7 1.5 7 1.5M9 14s1.5-1 3-1 3 1 3 1M12 18h.01"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg>
+    </div>
+  </div>
+
+  <!-- SPLASH -->
+  <div id="splash">
+    <div class="splash-logo"><span class="ball">⚽</span> Cancha Ya</div>
+    <div class="splash-tagline">Tu cancha, tu partido, tu comunidad</div>
+    <div class="splash-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
+  </div>
+
+  <!-- ═══ HOME ═══ -->
+  <div class="screen active" id="home">
+    <div class="home-header">
+      <div class="greeting">Buenos días,</div>
+      <div class="user-name" id="home-username">Miguel 👋</div>
+      <div class="location-row">
+        <div class="location-pill">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="home-location">Huánuco, Perú</span>
+        </div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar cancha o torneo...">
+    </div>
+    <div class="section-header" style="margin-top:8px">
+      <span class="section-title">Canchas cercanas</span>
+      <span class="see-all" onclick="goTo('canchas')">Ver todas →</span>
+    </div>
+    <div class="sport-pills">
+      <div class="sport-pill active">Todos</div>
+      <div class="sport-pill">⚽ Fútbol</div>
+      <div class="sport-pill">🏐 Vóley</div>
+      <div class="sport-pill">⚽ Fulbito</div>
+    </div>
+    <div class="canchas-scroll" id="home-canchas-scroll"></div>
+    <div class="section-header">
+      <span class="section-title">Torneos este fin de semana</span>
+      <span class="see-all" onclick="goTo('torneos')">Ver todos →</span>
+    </div>
+    <div id="home-torneos-list"></div>
+  </div>
+
+  <!-- ═══ CANCHAS ═══ -->
+  <div class="screen" id="canchas">
+    <div class="screen-header">
+      <div class="screen-header-title">Canchas en Huánuco</div>
+      <div class="screen-header-sub" id="canchas-count">Cargando...</div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-btn active">Todos</div>
+      <div class="filter-btn">⚽ Fútbol</div>
+      <div class="filter-btn">🏐 Vóley</div>
+      <div class="filter-btn">⚽ Fulbito</div>
+      <div class="filter-btn">Disponibles ahora</div>
+    </div>
+    <div id="canchas-list"></div>
+  </div>
+
+  <!-- ═══ RESERVA ═══ -->
+  <div class="screen" id="reserva">
+    <div class="reserva-hero">
+      <div class="back-btn" onclick="goBack()">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Volver
+      </div>
+      <div class="reserva-name" id="res-name">Grass Arena Norte</div>
+      <div class="reserva-sub" id="res-sub">📍 Amarilis · ★ 4.2 · S/. 50/hora</div>
+    </div>
+    <div class="reserva-section">
+      <div class="reserva-section-title">Selecciona el deporte</div>
+      <div class="sport-select">
+        <div class="sport-btn active" onclick="selectSport(this)"><span class="icon">⚽</span>Fútbol</div>
+        <div class="sport-btn" onclick="selectSport(this)"><span class="icon">🏐</span>Vóley</div>
+        <div class="sport-btn" onclick="selectSport(this)"><span class="icon">⚽</span>Fulbito</div>
+      </div>
+    </div>
+    <div class="reserva-section">
+      <div class="reserva-section-title">Elige el día</div>
+      <div class="date-pills">
+        <div class="date-pill active" onclick="selectDate(this)"><div class="day">Hoy</div><div class="num">26</div></div>
+        <div class="date-pill" onclick="selectDate(this)"><div class="day">Mié</div><div class="num">27</div></div>
+        <div class="date-pill" onclick="selectDate(this)"><div class="day">Jue</div><div class="num">28</div></div>
+        <div class="date-pill" onclick="selectDate(this)"><div class="day">Vie</div><div class="num">29</div></div>
+        <div class="date-pill" onclick="selectDate(this)"><div class="day">Sáb</div><div class="num">30</div></div>
+        <div class="date-pill" onclick="selectDate(this)"><div class="day">Dom</div><div class="num">31</div></div>
+      </div>
+    </div>
+    <div class="reserva-section">
+      <div class="reserva-section-title">Elige la hora</div>
+      <div class="time-grid">
+        <div class="time-slot taken">07:00</div>
+        <div class="time-slot taken">08:00</div>
+        <div class="time-slot" onclick="selectTime(this)">09:00</div>
+        <div class="time-slot active" onclick="selectTime(this)">10:00</div>
+        <div class="time-slot" onclick="selectTime(this)">11:00</div>
+        <div class="time-slot taken">12:00</div>
+        <div class="time-slot" onclick="selectTime(this)">13:00</div>
+        <div class="time-slot" onclick="selectTime(this)">14:00</div>
+        <div class="time-slot taken">15:00</div>
+        <div class="time-slot" onclick="selectTime(this)">16:00</div>
+        <div class="time-slot" onclick="selectTime(this)">17:00</div>
+        <div class="time-slot" onclick="selectTime(this)">18:00</div>
+      </div>
+    </div>
+    <div class="reserva-section">
+      <div class="reserva-section-title">Resumen de pago</div>
+      <div class="precio-row"><span>Alquiler 1 hora</span><span id="res-precio">S/. 50.00</span></div>
+      <div class="precio-row"><span>Comisión plataforma (10%)</span><span id="res-comision">S/. 5.00</span></div>
+      <div class="precio-row"><span>Total</span><span id="res-total">S/. 55.00</span></div>
+    </div>
+    <button class="btn-primary" onclick="showPago()">Reservar y pagar →</button>
+  </div>
+
+  <!-- ═══ TORNEOS ═══ -->
+  <div class="screen" id="torneos">
+    <div class="screen-header">
+      <div class="screen-header-title">Torneos</div>
+      <div class="screen-header-sub">Compite, gana, diviértete</div>
+    </div>
+    <div class="torneo-banner">
+      <div class="torneo-banner-label">Próximo torneo</div>
+      <div class="torneo-banner-title" id="banner-torneo-title">Copa Relámpago Huánuco 2025</div>
+      <div class="torneo-banner-sub" id="banner-torneo-sub">Sábado 31 mayo · 8:00 AM · Grass Arena Norte</div>
+      <div class="btn-outline-white" onclick="showToast('¡Inscrito! Te llegará confirmación por WhatsApp')">Inscribirse</div>
+    </div>
+    <div class="section-header"><span class="section-title">Torneos disponibles</span></div>
+    <div id="torneos-list"></div>
+  </div>
+
+  <!-- ═══ PERFIL ═══ -->
+  <div class="screen" id="perfil">
+    <div class="perfil-header">
+      <div class="avatar-ring">MC</div>
+      <div class="perfil-name">Miguel Castro</div>
+      <div class="perfil-sub">Miembro desde Mayo 2025 · Huánuco</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">12</div><div class="stat-lbl">Reservas</div></div>
+      <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Torneos</div></div>
+      <div class="stat-item"><div class="stat-num">2</div><div class="stat-lbl">Victorias</div></div>
+    </div>
+    <div style="margin: 20px 20px 0; background: linear-gradient(135deg, #1A7A4A, #2EA865); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px;">
+      <div style="font-size: 28px;">👑</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;">Membresía Pro</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">Prioridad de reserva + 15% descuento</div>
+      </div>
+      <div style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;" onclick="showToast('¡Membresía activada! S/. 60/mes')">S/.60/mes</div>
+    </div>
+    <div class="menu-section" style="margin-top:16px">
+      <div class="menu-item" onclick="showToast('Abriendo historial de reservas...')">
+        <div class="menu-icon green">📋</div>
+        <div class="menu-text"><div class="menu-label">Mis reservas</div><div class="menu-sub">12 reservas realizadas</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="showToast('Abriendo mis torneos...')">
+        <div class="menu-icon amber">🏆</div>
+        <div class="menu-text"><div class="menu-label">Mis torneos</div><div class="menu-sub">4 torneos jugados</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="showToast('Abriendo métodos de pago...')">
+        <div class="menu-icon blue">💳</div>
+        <div class="menu-text"><div class="menu-label">Métodos de pago</div><div class="menu-sub">Yape · Plin</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+    </div>
+    <div class="menu-section" style="margin-top:12px;margin-bottom:10px;">
+      <div class="menu-item" onclick="showToast('Configuración de notificaciones')">
+        <div class="menu-icon green">🔔</div>
+        <div class="menu-text"><div class="menu-label">Notificaciones</div><div class="menu-sub">Recordatorios de reserva</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="showToast('Soporte vía WhatsApp: +51 900 000 000')">
+        <div class="menu-icon amber">💬</div>
+        <div class="menu-text"><div class="menu-label">Soporte</div><div class="menu-sub">WhatsApp · Respuesta rápida</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" id="admin-access-btn" onclick="goToAdmin()" style="display:none">
+        <div class="menu-icon red">🔐</div>
+        <div class="menu-text"><div class="menu-label">Panel Administrador</div><div class="menu-sub">Gestión completa de la app</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+    </div>
+    <!-- BOTÓN SECRETO: toca 5 veces el avatar -->
+    <div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--text-3)" onclick="adminTap()">v1.0.0 · Cancha Ya</div>
+  </div>
+
+  <!-- ═══ OWNER PANEL ═══ -->
+  <div class="mode-toggle-bar" id="mode-bar" style="display:none;">
+    <span class="mode-toggle-label">👤 Jugador</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="owner-toggle" onchange="toggleMode(this.checked)" checked>
+      <span class="toggle-track"></span>
+      <span class="toggle-thumb"></span>
+    </label>
+    <span class="mode-toggle-label" style="color:#F5A623;font-weight:600;">🏟️ Dueño</span>
+  </div>
+  <div class="screen" id="owner" style="padding-top:130px;">
+    <div class="owner-header">
+      <div class="owner-badge">🏟️ Panel del dueño</div>
+      <div class="owner-name">Grass Arena Norte</div>
+      <div class="owner-sub">Amarilis, Huánuco · Activo desde mayo 2025</div>
+    </div>
+    <div class="owner-kpis">
+      <div class="kpi-card"><div class="kpi-label">Ingresos hoy</div><div class="kpi-val">S/.150</div><div class="kpi-sub">↑ 3 reservas</div></div>
+      <div class="kpi-card"><div class="kpi-label">Este mes</div><div class="kpi-val">S/.2,340</div><div class="kpi-sub">↑ +18%</div></div>
+      <div class="kpi-card"><div class="kpi-label">Ocupación</div><div class="kpi-val">74%</div><div class="kpi-sub">↑ Buen rendimiento</div></div>
+      <div class="kpi-card"><div class="kpi-label">Pendientes</div><div class="kpi-val">2</div><div class="kpi-sub neg">Por confirmar</div></div>
+    </div>
+    <div class="owner-section-title">Reservas de hoy</div>
+    <div class="reserva-incoming">
+      <div class="reserva-incoming-avatar">MC</div>
+      <div class="reserva-incoming-info">
+        <div class="reserva-incoming-name">Miguel Castro</div>
+        <div class="reserva-incoming-meta">⚽ Fútbol · 10:00 AM</div>
+        <button class="confirm-btn" onclick="showToast('✅ Reserva de Miguel confirmada')">Confirmar</button>
+      </div>
+      <div class="reserva-incoming-right"><div class="reserva-incoming-price">S/.50</div><div class="reserva-incoming-time">Pagado · Yape</div></div>
+    </div>
+    <div class="reserva-incoming">
+      <div class="reserva-incoming-avatar" style="background:#3B82F6">RL</div>
+      <div class="reserva-incoming-info">
+        <div class="reserva-incoming-name">Rosa López</div>
+        <div class="reserva-incoming-meta">🏐 Vóley · 02:00 PM</div>
+        <button class="confirm-btn" onclick="showToast('✅ Reserva de Rosa confirmada')">Confirmar</button>
+      </div>
+      <div class="reserva-incoming-right"><div class="reserva-incoming-price">S/.35</div><div class="reserva-incoming-time">Pagado · Plin</div></div>
+    </div>
+    <div class="owner-section-title">Tarifas por deporte</div>
+    <div class="precio-editor-card">
+      <div class="precio-editor-row"><div class="precio-editor-label">⚽ Fútbol <small>Por hora</small></div><div class="precio-input-wrap"><span>S/.</span><input class="precio-input" type="number" value="50"></div></div>
+      <div class="precio-editor-row"><div class="precio-editor-label">🏐 Vóley <small>Por hora</small></div><div class="precio-input-wrap"><span>S/.</span><input class="precio-input" type="number" value="35"></div></div>
+      <div class="precio-editor-row"><div class="precio-editor-label">⚽ Fulbito <small>Por hora</small></div><div class="precio-input-wrap"><span>S/.</span><input class="precio-input" type="number" value="45"></div></div>
+      <div class="precio-editor-row"><div class="precio-editor-label">🌙 Nocturno <small>8PM–11PM</small></div><div class="precio-input-wrap"><span>S/.</span><input class="precio-input" type="number" value="60"></div></div>
+    </div>
+    <button class="save-btn" onclick="showToast('✅ Tarifas guardadas')">Guardar tarifas</button>
+    <div style="height:10px"></div>
+  </div>
+
+  <!-- ═══ ADMIN PANEL ═══ -->
+  <div class="screen" id="admin">
+    <!-- Login overlay -->
+    <div class="admin-login-overlay" id="admin-login">
+      <div class="admin-login-logo">🔐 Admin</div>
+      <div class="admin-login-sub">Acceso restringido al administrador de Cancha Ya</div>
+      <input class="admin-login-input" type="password" id="admin-pass-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkAdminPass()">
+      <button class="admin-login-btn" onclick="checkAdminPass()">Ingresar</button>
+      <div class="admin-login-hint">Contraseña por defecto: cancha2025</div>
+    </div>
+
+    <div id="admin-content" style="display:none">
+      <div class="admin-header">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="admin-badge">🔐 Admin</div>
+            <div class="admin-title">Panel de gestión</div>
+            <div class="admin-sub">Cancha Ya · Huánuco</div>
+          </div>
+          <div onclick="goTo('home')" style="color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer">✕ Salir</div>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <div class="admin-tab active" onclick="switchAdminTab('canchas')">🏟️ Canchas</div>
+        <div class="admin-tab" onclick="switchAdminTab('torneos')">🏆 Torneos</div>
+        <div class="admin-tab" onclick="switchAdminTab('config')">⚙️ Config</div>
+      </div>
+
+      <!-- TAB: CANCHAS -->
+      <div class="admin-panel active" id="admin-tab-canchas">
+        <div class="admin-section-title">Canchas registradas</div>
+        <div id="admin-canchas-list"></div>
+        <button class="add-btn" onclick="addCancha()">+ Agregar nueva cancha</button>
+        <button class="admin-save-all" onclick="saveAllCanchas()">💾 Guardar todos los cambios</button>
+      </div>
+
+      <!-- TAB: TORNEOS -->
+      <div class="admin-panel" id="admin-tab-torneos">
+        <div class="admin-section-title">Torneos activos</div>
+        <div id="admin-torneos-list"></div>
+        <button class="add-btn" onclick="addTorneo()">+ Agregar nuevo torneo</button>
+        <button class="admin-save-all" onclick="saveAllTorneos()">💾 Guardar todos los cambios</button>
+      </div>
+
+      <!-- TAB: CONFIG -->
+      <div class="admin-panel" id="admin-tab-config">
+        <div class="admin-section-title">Configuración general</div>
+        <div class="admin-card">
+          <div class="admin-card-header"><span class="admin-card-title">🌍 App</span></div>
+          <div class="admin-field-row"><span class="admin-field-label">Ciudad</span><input class="admin-field-input" id="cfg-ciudad" value="Huánuco, Perú"></div>
+          <div class="admin-field-row"><span class="admin-field-label">Nombre app</span><input class="admin-field-input" id="cfg-appname" value="Cancha Ya"></div>
+          <div class="admin-field-row"><span class="admin-field-label">WhatsApp</span><input class="admin-field-input" id="cfg-whatsapp" value="+51 900 000 000"></div>
+        </div>
+        <div class="admin-card" style="margin-top:0">
+          <div class="admin-card-header"><span class="admin-card-title">🔐 Seguridad</span></div>
+          <div class="admin-field-row"><span class="admin-field-label">Nueva clave</span><input class="admin-field-input" id="cfg-pass" type="password" placeholder="Nueva contraseña"></div>
+        </div>
+        <button class="admin-save-all" onclick="saveConfig()">💾 Guardar configuración</button>
+        <div style="height:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav" id="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Inicio</span>
+    </div>
+    <div class="nav-item" id="nav-canchas" onclick="goTo('canchas')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/></svg>
+      <span>Canchas</span>
+    </div>
+    <div class="nav-item" id="nav-torneos" onclick="goTo('torneos')">
+      <svg viewBox="0 0 24 24"><polyline points="8 6 12 2 16 6"/><line x1="12" y1="2" x2="12" y2="15"/><path d="M20 22H4a2 2 0 01-2-2V14a2 2 0 012-2h16a2 2 0 012 2v6a2 2 0 01-2 2z"/></svg>
+      <span>Torneos</span>
+    </div>
+    <div class="nav-item" id="nav-perfil" onclick="goTo('perfil')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Perfil</span>
+    </div>
+  </div>
+
+  <!-- MODAL PAGO -->
+  <div class="modal-overlay" id="modal-pago" onclick="closePago(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Elige cómo pagar</div>
+      <div class="modal-sub">Cancha reservada: 10:00 AM · Grass Arena Norte</div>
+      <div class="yape-row" onclick="confirmReserva('Yape')"><div class="yape-logo">🟣</div><div class="yape-text">Pagar con Yape — S/. 55.00</div></div>
+      <div style="margin-top:10px"><div class="plin-row" onclick="confirmReserva('Plin')"><div class="yape-logo">🟢</div><div class="plin-text">Pagar con Plin — S/. 55.00</div></div></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ══════════════════════════════════
+// DATA — toda la app viene de aquí
+// ══════════════════════════════════
+var appData = JSON.parse(localStorage.getItem('canchaYaData') || 'null') || {
+  config: { ciudad: 'Huánuco, Perú', appname: 'Cancha Ya', whatsapp: '+51 900 000 000', pass: 'cancha2025' },
+  canchas: [
+    { id:1, nombre:'Grass Arena Norte', distrito:'Amarilis', distancia:'1.2 km', deportes:'Fútbol, Fulbito', precio:50, rating:4.2, disponible:true, emoji:'🟩', color:'bg-green' },
+    { id:2, nombre:'Vóley Sport Center', distrito:'Centro', distancia:'0.8 km', deportes:'Vóley', precio:35, rating:4.8, disponible:true, emoji:'🏐', color:'bg-blue' },
+    { id:3, nombre:'Fullbito La Milla', distrito:'Pillco Marca', distancia:'2.1 km', deportes:'Fulbito', precio:45, rating:4.0, disponible:false, emoji:'⚽', color:'bg-amber' },
+    { id:4, nombre:'Grass Real Huánuco', distrito:'Huánuco', distancia:'3.0 km', deportes:'Fútbol, Vóley', precio:55, rating:4.5, disponible:true, emoji:'🟩', color:'bg-green' },
+    { id:5, nombre:'Arena Vóley Kotosh', distrito:'Kotosh', distancia:'1.8 km', deportes:'Vóley', precio:30, rating:4.3, disponible:true, emoji:'🏐', color:'bg-blue' }
+  ],
+  torneos: [
+    { id:1, nombre:'Copa Relámpago Fútbol', fecha:'Sáb 31 mayo', lugar:'Grass Arena Norte', formato:'5v5', equipos:8, cupos:3, precio:40, nivel:'Principiante', emoji:'⚽', color:'#E8F5EE' },
+    { id:2, nombre:'Torneo Vóley Mixto', fecha:'Dom 1 jun', lugar:'Vóley Sport Center', formato:'6v6', equipos:12, cupos:5, precio:30, nivel:'Intermedio', emoji:'🏐', color:'#EEF0FE' },
+    { id:3, nombre:'Liga Premier Fútbol', fecha:'Sáb 7 jun', lugar:'Grass Real Huánuco', formato:'7v7', equipos:16, cupos:2, precio:80, nivel:'Pro', emoji:'⚽', color:'#FEE2E2' }
+  ]
+};
+
+function saveData() { localStorage.setItem('canchaYaData', JSON.stringify(appData)); }
+
+// ══════════════════════════════════
+// RENDER
+// ══════════════════════════════════
+function renderAll() {
+  renderHomeCanchas();
+  renderHomeTorneos();
+  renderCanchasList();
+  renderTorneosList();
+  renderAdminCanchas();
+  renderAdminTorneos();
+  document.getElementById('canchas-count').textContent = appData.canchas.length + ' canchas disponibles';
+  document.getElementById('home-location').textContent = appData.config.ciudad;
+}
+
+function renderHomeCanchas() {
+  var el = document.getElementById('home-canchas-scroll');
+  el.innerHTML = appData.canchas.slice(0,4).map(function(c) {
+    return '<div class="cancha-card" onclick="openReserva('+c.id+')">' +
+      '<div class="cancha-img"><div class="cancha-img-bg '+c.color+'">'+c.emoji+'</div>' +
+      '<div class="cancha-badge '+(c.disponible?'disponible':'ocupado')+'">'+(c.disponible?'● Disponible':'● Ocupado')+'</div></div>' +
+      '<div class="cancha-info"><div class="cancha-name">'+c.nombre+'</div>' +
+      '<div class="cancha-meta"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+c.distancia+' · '+c.distrito+'</div>' +
+      '<div class="cancha-footer"><div class="cancha-price">S/.'+c.precio+' <span>/hora</span></div><div class="stars">★ '+c.rating+'</div></div></div></div>';
+  }).join('');
+}
+
+function renderHomeTorneos() {
+  var el = document.getElementById('home-torneos-list');
+  el.innerHTML = appData.torneos.slice(0,2).map(function(t) {
+    return '<div class="torneo-card" onclick="goTo(\'torneos\')">' +
+      '<div class="torneo-icon" style="background:'+t.color+'">'+t.emoji+'</div>' +
+      '<div class="torneo-info"><div class="torneo-name">'+t.nombre+'</div><div class="torneo-sub">'+t.fecha+' · Nivel '+t.nivel+'</div></div>' +
+      '<div class="torneo-right"><div class="torneo-price">S/.'+t.precio+'</div><div class="torneo-spots">'+t.cupos+' cupos</div></div></div>';
+  }).join('');
+}
+
+function renderCanchasList() {
+  var el = document.getElementById('canchas-list');
+  el.innerHTML = appData.canchas.map(function(c) {
+    var deportesTags = c.deportes.split(',').map(function(d) {
+      d = d.trim();
+      var cls = d==='Vóley'?'voley':'';
+      return '<span class="tag-pill '+cls+'">'+d+'</span>';
+    }).join('');
+    return '<div class="cancha-list-item" onclick="openReserva('+c.id+')">' +
+      '<div class="cancha-thumb '+c.color+'" style="border-radius:10px">'+c.emoji+'</div>' +
+      '<div class="cancha-list-info"><div class="cancha-list-name">'+c.nombre+'</div>' +
+      '<div class="cancha-list-meta">📍 '+c.distancia+' · '+c.distrito+' · ★ '+c.rating+'</div>' +
+      '<div class="cancha-list-tags">'+deportesTags+'</div></div>' +
+      '<div class="cancha-list-right"><div class="cancha-list-price">S/.'+c.precio+'<small>/h</small></div>' +
+      '<div><span class="avail-dot '+(c.disponible?'on':'off')+'"></span></div></div></div>';
+  }).join('');
+}
+
+function renderTorneosList() {
+  var el = document.getElementById('torneos-list');
+  var levelClass = { 'Principiante':'level-basic','Intermedio':'level-mid','Pro':'level-pro' };
+  el.innerHTML = appData.torneos.map(function(t) {
+    return '<div class="torneo-full-card">' +
+      '<div class="torneo-full-header">' +
+      '<div class="torneo-full-icon" style="background:'+t.color+'">'+t.emoji+'</div>' +
+      '<div><div class="torneo-full-name">'+t.nombre+'</div><div class="torneo-full-meta">'+t.fecha+' · '+t.lugar+'</div></div>' +
+      '<div class="torneo-level '+(levelClass[t.nivel]||'level-basic')+'">'+t.nivel+'</div></div>' +
+      '<div class="torneo-full-body"><div class="torneo-stats">' +
+      '<div class="torneo-stat"><div class="torneo-stat-val">'+t.equipos+'</div><div class="torneo-stat-label">Equipos</div></div>' +
+      '<div class="torneo-stat"><div class="torneo-stat-val">'+t.formato+'</div><div class="torneo-stat-label">Formato</div></div>' +
+      '<div class="torneo-stat"><div class="torneo-stat-val">S/.'+t.precio+'</div><div class="torneo-stat-label">Inscripción</div></div>' +
+      '<div class="torneo-stat"><div class="torneo-stat-val">'+t.cupos+'</div><div class="torneo-stat-label">Cupos</div></div>' +
+      '</div><button class="inscribir-btn" onclick="showToast(\'¡Inscrito en '+t.nombre+'! '+t.emoji+'\')">Inscribir mi equipo →</button></div></div>';
+  }).join('');
+  if (appData.torneos[0]) {
+    document.getElementById('banner-torneo-title').textContent = appData.torneos[0].nombre;
+    document.getElementById('banner-torneo-sub').textContent = appData.torneos[0].fecha + ' · ' + appData.torneos[0].lugar;
+  }
+}
+
+// ══════════════════════════════════
+// ADMIN RENDER
+// ══════════════════════════════════
+function renderAdminCanchas() {
+  var el = document.getElementById('admin-canchas-list');
+  el.innerHTML = appData.canchas.map(function(c, i) {
+    return '<div class="admin-card" id="admin-cancha-'+c.id+'">' +
+      '<div class="admin-card-header">' +
+      '<span class="admin-card-title"><span class="admin-card-num">'+(i+1)+'</span> '+c.emoji+' '+c.nombre+'</span>' +
+      '<div class="admin-card-actions">' +
+      '<button class="admin-action-btn danger" onclick="deleteCancha('+c.id+')">🗑 Eliminar</button>' +
+      '</div></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Nombre</span><input class="admin-field-input" data-cid="'+c.id+'" data-field="nombre" value="'+c.nombre+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Distrito</span><input class="admin-field-input" data-cid="'+c.id+'" data-field="distrito" value="'+c.distrito+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Distancia</span><input class="admin-field-input" data-cid="'+c.id+'" data-field="distancia" value="'+c.distancia+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Deportes</span><input class="admin-field-input" data-cid="'+c.id+'" data-field="deportes" value="'+c.deportes+'" placeholder="Fútbol, Vóley"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Precio S/.</span><input class="admin-field-input" data-cid="'+c.id+'" data-field="precio" type="number" value="'+c.precio+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Emoji</span><input class="admin-field-input" data-cid="'+c.id+'" data-field="emoji" value="'+c.emoji+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Estado</span>' +
+      '<select class="admin-field-select" data-cid="'+c.id+'" data-field="disponible">' +
+      '<option value="true"'+(c.disponible?' selected':'')+'>✅ Disponible</option>' +
+      '<option value="false"+(!c.disponible?" selected":"")+>❌ Ocupado</option>' +
+      '</select></div></div>';
+  }).join('');
+}
+
+function renderAdminTorneos() {
+  var el = document.getElementById('admin-torneos-list');
+  el.innerHTML = appData.torneos.map(function(t, i) {
+    return '<div class="admin-card" id="admin-torneo-'+t.id+'">' +
+      '<div class="admin-card-header">' +
+      '<span class="admin-card-title"><span class="admin-card-num">'+(i+1)+'</span> '+t.emoji+' '+t.nombre+'</span>' +
+      '<div class="admin-card-actions">' +
+      '<button class="admin-action-btn danger" onclick="deleteTorneo('+t.id+')">🗑 Eliminar</button>' +
+      '</div></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Nombre</span><input class="admin-field-input" data-tid="'+t.id+'" data-field="nombre" value="'+t.nombre+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Fecha</span><input class="admin-field-input" data-tid="'+t.id+'" data-field="fecha" value="'+t.fecha+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Lugar</span><input class="admin-field-input" data-tid="'+t.id+'" data-field="lugar" value="'+t.lugar+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Precio S/.</span><input class="admin-field-input" data-tid="'+t.id+'" data-field="precio" type="number" value="'+t.precio+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Cupos</span><input class="admin-field-input" data-tid="'+t.id+'" data-field="cupos" type="number" value="'+t.cupos+'"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Formato</span><input class="admin-field-input" data-tid="'+t.id+'" data-field="formato" value="'+t.formato+'" placeholder="5v5"></div>' +
+      '<div class="admin-field-row"><span class="admin-field-label">Nivel</span>' +
+      '<select class="admin-field-select" data-tid="'+t.id+'" data-field="nivel">' +
+      '<option'+(t.nivel==='Principiante'?' selected':'')+'>Principiante</option>' +
+      '<option'+(t.nivel==='Intermedio'?' selected':'')+'>Intermedio</option>' +
+      '<option'+(t.nivel==='Pro'?' selected':'')+'>Pro</option>' +
+      '</select></div></div>';
+  }).join('');
+}
+
+// ══════════════════════════════════
+// ADMIN LOGIC
+// ══════════════════════════════════
+function saveAllCanchas() {
+  document.querySelectorAll('[data-cid]').forEach(function(input) {
+    var id = parseInt(input.dataset.cid);
+    var field = input.dataset.field;
+    var val = input.value;
+    var c = appData.canchas.find(function(x){return x.id===id;});
+    if (!c) return;
+    if (field === 'precio') val = parseInt(val);
+    else if (field === 'disponible') val = val === 'true';
+    c[field] = val;
+  });
+  saveData();
+  renderAll();
+  showToast('✅ Canchas actualizadas en toda la app');
+}
+
+function saveAllTorneos() {
+  document.querySelectorAll('[data-tid]').forEach(function(input) {
+    var id = parseInt(input.dataset.tid);
+    var field = input.dataset.field;
+    var val = input.value;
+    var t = appData.torneos.find(function(x){return x.id===id;});
+    if (!t) return;
+    if (field === 'precio' || field === 'cupos' || field === 'equipos') val = parseInt(val);
+    t[field] = val;
+  });
+  saveData();
+  renderAll();
+  showToast('✅ Torneos actualizados en toda la app');
+}
+
+function saveConfig() {
+  appData.config.ciudad = document.getElementById('cfg-ciudad').value;
+  appData.config.appname = document.getElementById('cfg-appname').value;
+  appData.config.whatsapp = document.getElementById('cfg-whatsapp').value;
+  var newPass = document.getElementById('cfg-pass').value;
+  if (newPass.length > 3) appData.config.pass = newPass;
+  saveData();
+  renderAll();
+  showToast('✅ Configuración guardada');
+}
+
+function addCancha() {
+  var newId = Date.now();
+  appData.canchas.push({ id:newId, nombre:'Nueva Cancha', distrito:'Huánuco', distancia:'0 km', deportes:'Fútbol', precio:50, rating:4.0, disponible:true, emoji:'🟩', color:'bg-green' });
+  saveData();
+  renderAdminCanchas();
+  showToast('➕ Cancha agregada — edita los datos');
+  setTimeout(function() {
+    var el = document.getElementById('admin-cancha-'+newId);
+    if (el) el.scrollIntoView({behavior:'smooth'});
+  }, 300);
+}
+
+function deleteCancha(id) {
+  appData.canchas = appData.canchas.filter(function(c){return c.id!==id;});
+  saveData();
+  renderAdminCanchas();
+  renderAll();
+  showToast('🗑 Cancha eliminada');
+}
+
+function addTorneo() {
+  var newId = Date.now();
+  appData.torneos.push({ id:newId, nombre:'Nuevo Torneo', fecha:'Por definir', lugar:'Por definir', formato:'5v5', equipos:8, cupos:8, precio:40, nivel:'Principiante', emoji:'⚽', color:'#E8F5EE' });
+  saveData();
+  renderAdminTorneos();
+  showToast('➕ Torneo agregado — edita los datos');
+}
+
+function deleteTorneo(id) {
+  appData.torneos = appData.torneos.filter(function(t){return t.id!==id;});
+  saveData();
+  renderAdminTorneos();
+  renderAll();
+  showToast('🗑 Torneo eliminado');
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.admin-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('admin-tab-'+tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════
+// ACCESO SECRETO ADMIN
+// ══════════════════════════════════
+var adminTapCount = 0;
+var adminTapTimer = null;
+function adminTap() {
+  adminTapCount++;
+  clearTimeout(adminTapTimer);
+  adminTapTimer = setTimeout(function(){adminTapCount=0;},2000);
+  if (adminTapCount >= 5) {
+    adminTapCount = 0;
+    document.getElementById('admin-access-btn').style.display = 'flex';
+    showToast('🔐 Modo admin desbloqueado');
+  }
+}
+
+function goToAdmin() {
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('admin').classList.add('active');
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('admin-content').style.display = 'none';
+}
+
+function checkAdminPass() {
+  var input = document.getElementById('admin-pass-input');
+  if (input.value === appData.config.pass) {
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    renderAdminCanchas();
+    renderAdminTorneos();
+    document.getElementById('cfg-ciudad').value = appData.config.ciudad;
+    document.getElementById('cfg-appname').value = appData.config.appname;
+    document.getElementById('cfg-whatsapp').value = appData.config.whatsapp;
+  } else {
+    input.style.borderColor = '#E03535';
+    showToast('❌ Contraseña incorrecta');
+    setTimeout(function(){input.style.borderColor='';},1500);
+  }
+  input.value = '';
+}
+
+// ══════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════
+var prevScreen = 'home';
+var currentScreen = 'home';
+
+function goTo(screen) {
+  if (screen === 'reserva') prevScreen = currentScreen;
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('bottom-nav').style.display = 'flex';
+  document.getElementById('mode-bar').style.display = 'none';
+  var target = document.getElementById(screen);
+  if (target) { target.classList.add('active'); target.scrollTop = 0; }
+  var navItem = document.getElementById('nav-'+screen);
+  if (navItem) navItem.classList.add('active');
+  if (screen === 'reserva') document.getElementById('nav-canchas').classList.add('active');
+  currentScreen = screen;
+}
+
+function goBack() { goTo(prevScreen || 'canchas'); }
+
+function openReserva(id) {
+  var c = appData.canchas.find(function(x){return x.id===id;});
+  if (!c) return;
+  document.getElementById('res-name').textContent = c.nombre;
+  document.getElementById('res-sub').textContent = '📍 '+c.distrito+' · ★ '+c.rating+' · S/. '+c.precio+'/hora';
+  document.getElementById('res-precio').textContent = 'S/. '+c.precio+'.00';
+  document.getElementById('res-comision').textContent = 'S/. '+Math.round(c.precio*0.1)+'.00';
+  document.getElementById('res-total').textContent = 'S/. '+Math.round(c.precio*1.1)+'.00';
+  goTo('reserva');
+}
+
+function selectSport(el) {
+  el.closest('.sport-select').querySelectorAll('.sport-btn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+}
+function selectDate(el) {
+  el.closest('.date-pills').querySelectorAll('.date-pill').forEach(function(p){p.classList.remove('active');});
+  el.classList.add('active');
+}
+function selectTime(el) {
+  if (el.classList.contains('taken')) return;
+  el.closest('.time-grid').querySelectorAll('.time-slot').forEach(function(s){if(!s.classList.contains('taken'))s.classList.remove('active');});
+  el.classList.add('active');
+}
+function showPago() { document.getElementById('modal-pago').classList.add('show'); }
+function closePago(e) { if (e.target===document.getElementById('modal-pago')) document.getElementById('modal-pago').classList.remove('show'); }
+function confirmReserva(method) {
+  document.getElementById('modal-pago').classList.remove('show');
+  showToast('✅ ¡Reserva confirmada con '+method+'! Te llegará confirmación por WhatsApp.');
+  setTimeout(function(){goTo('home');},2500);
+}
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+document.querySelectorAll('.sport-pill').forEach(function(pill){
+  pill.addEventListener('click',function(){
+    document.querySelectorAll('.sport-pill').forEach(function(p){p.classList.remove('active');});
+    this.classList.add('active');
+  });
+});
+document.querySelectorAll('.filter-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+  });
+});
+
+function enterOwnerMode() {
+  document.getElementById('mode-bar').style.display='flex';
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var owner=document.getElementById('owner');
+  owner.classList.add('active'); owner.scrollTop=0;
+}
+function toggleMode(isOwner) {
+  if (!isOwner) {
+    document.getElementById('mode-bar').style.display='none';
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+    document.getElementById('home').classList.add('active');
+    document.getElementById('nav-home').classList.add('active');
+  }
+}
+function toggleDay(id) {
+  var slots=document.getElementById('slots-'+id);
+  var arrow=document.getElementById('arrow-'+id);
+  if (!slots) return;
+  var isOpen=slots.style.display!=='none';
+  slots.style.display=isOpen?'none':'block';
+  arrow.classList.toggle('open',!isOpen);
+}
+function cycleSlot(el) {
+  if (el.classList.contains('slot-reservado')){showToast('No puedes cambiar una reserva ya pagada');return;}
+  var states=['slot-libre','slot-bloqueado'];
+  var labels=['Libre','Bloqueado'];
+  var current=states.findIndex(function(s){return el.classList.contains(s);});
+  var next=(current+1)%states.length;
+  states.forEach(function(s){el.classList.remove(s);});
+  el.classList.add(states[next]);
+  el.textContent=labels[next];
+  showToast(next===0?'Horario habilitado':'Horario bloqueado');
+}
+
+// Clock
+function updateClock(){
+  var now=new Date();
+  var h=now.getHours().toString().padStart(2,'0');
+  var m=now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('clock').textContent=h+':'+m;
+}
+updateClock(); setInterval(updateClock,30000);
+
+// Add owner mode button to profile
+window.addEventListener('load',function(){
+  var menuSection=document.querySelectorAll('.menu-section')[1];
+  if(menuSection){
+    var item=document.createElement('div');
+    item.className='menu-item';
+    item.innerHTML='<div class="menu-icon amber">🏟️</div><div class="menu-text"><div class="menu-label">Modo dueño de cancha</div><div class="menu-sub">Gestiona tu cancha desde aquí</div></div><div class="menu-arrow">›</div>';
+    item.onclick=function(){enterOwnerMode();showToast('Panel del dueño activado');};
+    menuSection.appendChild(item);
+  }
+  renderAll();
+  setTimeout(function(){
+    document.getElementById('splash').style.opacity='0';
+    setTimeout(function(){document.getElementById('splash').style.display='none';},500);
+  },2000);
+});
+</script>
+</body>
+</html>
+HTMLEOF
+echo "Archivo creado: $(wc -l < /home/claude/cancha-ya-app.html) líneas"
